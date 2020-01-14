@@ -5,13 +5,16 @@ function Stop-HabSvc
     Write-Host "Stopping $serviceName service..."
 
     $service = Get-Service $serviceName
-    if ($service.Status -eq [System.ServiceProcess.ServiceControllerStatus]::Running){
-        Stop-Service $serviceName
-        Start-Sleep -s 10
-        $service = Get-Service $serviceName
+    while($service.Status -ne [System.ServiceProcess.ServiceControllerStatus]::Stopped)
+    {
+        if ($service.Status -eq [System.ServiceProcess.ServiceControllerStatus]::Running){
+            Stop-Service $serviceName
+            Start-Sleep -s 10
+            $service = Get-Service $serviceName
+        }
     }
 
-    else($service.Status -eq [System.ServiceProcess.ServiceControllerStatus]::Stopped){
+    if($service.Status -eq [System.ServiceProcess.ServiceControllerStatus]::Stopped){
         Write-Host "Service is stopped..."
         return $true
     }
@@ -37,7 +40,6 @@ function Remove-HabSvc
 
 function Uninstall-HabSvc
 {
-    Stop-HabSvc
     Remove-HabSvc
 }
 
