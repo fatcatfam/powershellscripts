@@ -9,7 +9,7 @@ function Stop-HabSvc
     {
         if ($service.Status -eq [System.ServiceProcess.ServiceControllerStatus]::Running){
             Stop-Service $serviceName
-            Start-Sleep -s 3
+            Start-Sleep -s 5
         }
     }
 
@@ -27,21 +27,8 @@ function Remove-HabSvc
 {
     $stopped = Stop-HabSvc
     if($stopped) {
-        Remove-Item C:\Hab -Recurse -Force
         sc.exe delete $serviceName
-    }
-}
-
-function Verify-Uninstalled
-{
-    $serviceName = 'Habitat'
-    $service = Get-Service -DisplayName $serviceName
-
-    $uninstalled = Remove-HavSvc
-    if($uninstalled) {
-        if($service.Length -gt 0) {
-            Write-Host "Verification failed, service still exists... Please contact Kris.Clark-Berroth@aig.com"
-        }
+        Remove-Item C:\Hab -Recurse -Force
     }
 }
 
@@ -49,7 +36,6 @@ function Uninstall-HabSvc
 {
     Stop-HabSvc
     Remove-HabSvc
-    Verify-Uninstalled
 }
 
 Write-Host "Starting"
