@@ -1,10 +1,10 @@
 function Stop-HabSvc
 {
-    $serviceName = Habitat
+    $serviceName = 'Habitat'
 
     Write-Host "Stopping $serviceName..."
 
-    $service = Get-Service -DisplayName $serviceName
+    $service = Get-Service $serviceName
     while($service.Status -ne [System.ServiceProcess.ServiceControllerStatus]::Stopped)
     {
         if ($service.Status -eq [System.ServiceProcess.ServiceControllerStatus]::Running){
@@ -34,7 +34,7 @@ function Remove-HabSvc
 
 function Verify-Uninstalled
 {
-    $serviceName = Habitat
+    $serviceName = 'Habitat'
     $service = Get-Service -DisplayName $serviceName
 
     $uninstalled = Remove-HavSvc
