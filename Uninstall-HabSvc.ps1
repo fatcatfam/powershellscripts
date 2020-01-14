@@ -27,7 +27,7 @@ function Remove-HabSvc
 {
     $stopped = Stop-HabSvc
     if($stopped) {
-        Remove-Item C:\Habitat -Recurse -Force
+        Remove-Item C:\Hab -Recurse -Force
         sc.exe delete $serviceName
     }
 }
