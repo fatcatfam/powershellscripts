@@ -34,7 +34,7 @@ function Remove-HabSvc
         Write-Host "Purging C:\Hab"
         Remove-Item C:\Hab -Recurse -Force
         Write-Host "Purging C:\ProgramData\Habitat"
-        Remove-Item C:\ProgramData\Habitat -Recurse =Force
+        Remove-Item C:\ProgramData\Habitat -Recurse -Force
     }
 }
 
