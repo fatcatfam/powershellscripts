@@ -31,8 +31,10 @@ function Remove-HabSvc
     $stopped = Stop-HabSvc
     if($stopped) {
         sc.exe delete $serviceName
+        Write-Host "Purging C:\Hab"
         Remove-Item C:\Hab -Recurse -Force
-        Remove-Item C:\ProgramData\Habitat
+        Write-Host "Purging C:\ProgramData\Habitat"
+        Remove-Item C:\ProgramData\Habitat -Recurse =Force
     }
 }
 
@@ -42,6 +44,4 @@ function Uninstall-HabSvc
     Remove-HabSvc
 }
 
-Write-Host "Starting"
 Uninstall-HabSvc
-Write-Host "Done"
