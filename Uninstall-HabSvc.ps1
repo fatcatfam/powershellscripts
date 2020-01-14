@@ -10,6 +10,7 @@ function Stop-HabSvc
         if ($service.Status -eq [System.ServiceProcess.ServiceControllerStatus]::Running){
             Stop-Service $serviceName
             Start-Sleep -s 5
+            $service = Get-Service $serviceName
         }
     }
 
