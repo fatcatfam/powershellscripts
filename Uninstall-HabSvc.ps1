@@ -2,16 +2,17 @@ function Stop-HabSvc
 {
     $serviceName = 'Habitat'
 
-    Write-Host "Stopping $serviceName..."
+    Write-Host "Stopping $serviceName service..."
 
     $service = Get-Service $serviceName
-    while($service.Status -ne [System.ServiceProcess.ServiceControllerStatus]::Stopped)
+    while($service.Status -ne [System.ServiceProcess.ServiceControllerStatus]::Stopped -and $retryCount -gt 0)
     {
         if ($service.Status -eq [System.ServiceProcess.ServiceControllerStatus]::Running){
             Stop-Service $serviceName
-            Start-Sleep -s 20
-            $service = Get-Service $serviceName
         }
+        $retryCount = $retryCount - 1
+        Start-Sleep -s 10
+        $service = Get-Service $serviceName
     }
 
     if($service.Status -eq [System.ServiceProcess.ServiceControllerStatus]::Stopped){
