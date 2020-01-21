@@ -29,11 +29,11 @@ function Stop-HabSvc
 
 function Remove-HabSvc
 {
-    $serviceName = 'Habitat'
+    $service_name = 'Habitat'
 
     $stopped = Stop-HabSvc
     if($stopped) {
-        sc.exe delete $serviceName
+        hab exec core/windows-service uninstall
         Write-Host "Purging C:\Hab"
         Remove-Item C:\Hab -Recurse -Force
         Write-Host "Purging C:\ProgramData\Habitat"
