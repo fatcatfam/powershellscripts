@@ -1,10 +1,24 @@
- function installation_status($service_name)
-{
-    if (!(Get-Service $service_name -ErrorAction SilentlyContinue).DisplayName){
-        Write-Host "$service_name is not installed. Skipping uninstall and exiting."
-        exit
-    }
+# Original Author: Kris Clark.Berroth
+# Check the installation state and service state, and uninstall or exit if installed.
 
+function installation_status($service_name)
+{
+
+    if (!(Get-Service $service_name -ErrorAction SilentlyContinue).DisplayName){
+        Write-Host "Service is not installed"
+        $directories = @("C:\Hab", "C:\ProgramData\Habitat")
+        foreach ($dir in $directories){
+            if (Test-Path $dir -ErrorAction SilentlyContinue){
+                Write-Host "Directory: $dir exists."
+                return $true
+            }
+                elseif (!(Test-Path $dir -ErrorAction SilentlyContinue)){
+                Write-Host "$service_name is not installed"
+                return $false
+            }
+        }
+    }
+        
     if (Get-Service $service_name -ErrorAction SilentlyContinue){
         Write-Host "$service_name is installed"
         return $true
@@ -47,26 +61,25 @@ function uninstall_service($service_name)
     $stopped = stop_service($service_name)
     if ($stopped)
     {
-       Write-Host "Uninstalling $service_name..."
-       #hab pkg exec core/windows-service uninstall
-       sc.exe delete $service_name
-       Start-Sleep -s 10
-    }
+        Write-Host "Uninstalling $service_name..."
+        hab pkg exec core/windows-service uninstall
+        Start-Sleep -s 10
 
-    Write-Host "Checking $service_name directories..."
+        Write-Host "Checking $service_name directories..."
 
-    if (!(Get-Service $service_name -ErrorAction SilentlyContinue)){
-        $directories = @("C:\Hab", "C:\ProgramData\Habitat")
-        foreach ($dir in $directories){
-            if (Test-Path $dir -ErrorAction SilentlyContinue){
-                Write-Host "Directory: $dir deleted."
-                Remove-Item $dir -Recurse -Force
+        if (!(Get-Service $service_name -ErrorAction SilentlyContinue)){
+            $directories = @("C:\Hab", "C:\ProgramData\Habitat")
+            foreach ($dir in $directories){
+                if (Test-Path $dir -ErrorAction SilentlyContinue){
+                    Write-Host "Directory: $dir deleted."
+                    Remove-Item $dir -Recurse -Force
+                }
+                elseif (!(Test-Path $dir -ErrorAction SilentlyContinue)){
+                    Write-Host "Directory: $dir does not exist."
+                }
             }
-            elseif (!(Test-Path $dir -ErrorAction SilentlyContinue)){
-                Write-Host "Directory: $dir does not exist."
-            } 
         }
     }
 }
 
-uninstall_service 'THREADORDER' 
+uninstall_service 'Habitat' 
