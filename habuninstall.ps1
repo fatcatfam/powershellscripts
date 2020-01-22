@@ -1,19 +1,18 @@
-# Original Author: Kris Clark.Berroth
+ # Original Author: Kris Clark.Berroth
 # Check the installation state and service state, and uninstall or exit if installed.
 
 function installation_status($service_name)
 {
 
     if (!(Get-Service $service_name -ErrorAction SilentlyContinue).DisplayName){
-        Write-Host "Service is not installed"
         $directories = @("C:\Hab", "C:\ProgramData\Habitat")
         foreach ($dir in $directories){
             if (Test-Path $dir -ErrorAction SilentlyContinue){
-                Write-Host "Directory: $dir exists."
+                Write-Host "Service is not installed but Directory: $dir exist."
                 return $true
             }
                 elseif (!(Test-Path $dir -ErrorAction SilentlyContinue)){
-                Write-Host "$service_name is not installed"
+                Write-Host "$service_name is not installed and directories"$directories[0]"and"$directories[1]"do not exist."
                 return $false
             }
         }
@@ -36,6 +35,9 @@ function stop_service($service_name)
         $service = Get-Service $service_name -ErrorAction SilentlyContinue
         while($service.Status -ne [System.ServiceProcess.ServiceControllerStatus]::Stopped)
         {
+            if (!(Get-Service $service_name -ErrorAction SilentlyContinue)){
+                return $false
+            }
             if ($service.Status -eq [System.ServiceProcess.ServiceControllerStatus]::Running){
                 Write-Host "$service_name is running"
                 Write-Host "Stopping $service_name..."
@@ -48,11 +50,13 @@ function stop_service($service_name)
             Write-Host "$service_name is stopped"
             return $true
         }
+
         elseif($service.Status -ne [System.ServiceProcess.ServiceControllerStatus]::Stopped){
             Write-Output "$service_name did not stop. Please contact administrator for support. Exiting."
             return $false
             exit
         }
+        
     }
 }
 
@@ -62,7 +66,8 @@ function uninstall_service($service_name)
     if ($stopped)
     {
         Write-Host "Uninstalling $service_name..."
-        hab pkg exec core/windows-service uninstall
+        #hab pkg exec core/windows-service uninstall
+        sc.exe delete $service_name
         Start-Sleep -s 10
 
         Write-Host "Checking $service_name directories..."
@@ -80,6 +85,21 @@ function uninstall_service($service_name)
             }
         }
     }
+    elseif (!($false)){
+        $directories = @("C:\Hab", "C:\ProgramData\Habitat")
+        foreach ($dir in $directories){
+            if (Test-Path $dir -ErrorAction SilentlyContinue){
+            Write-Host "Directory: $dir deleted."
+            Remove-Item $dir -Recurse -Force
+            }
+            elseif (!(Test-Path $dir -ErrorAction SilentlyContinue)){
+                Write-Host "Directory: $dir does not exist."
+            }
+        }
+
+    }
 }
 
-uninstall_service 'Habitat' 
+Write-Host "*****STARTING*****"
+uninstall_service 'DeviceInstall'
+Write-Host "*****FINISHED*****"
